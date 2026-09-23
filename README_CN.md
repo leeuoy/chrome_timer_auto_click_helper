@@ -12,8 +12,8 @@
 ---
 
 <div align="center">
-  <img src="docs/demo.gif" alt="演示" width="600"/>
-  <p><em>↑ 演示 GIF — 请将 <code>docs/demo.gif</code> 替换为你的屏幕录制</em></p>
+  <img src="docs/demo.gif" alt="演示" width="420"/>
+  <p><em>快速演示：创建任务 → 开启开关 → 展开编辑器 → 添加更多任务</em></p>
 </div>
 
 ---

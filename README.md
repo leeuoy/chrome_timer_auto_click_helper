@@ -12,8 +12,8 @@ A powerful Chrome extension that lets you create scheduled tasks on web pages to
 ---
 
 <div align="center">
-  <img src="docs/demo.gif" alt="Demo" width="600"/>
-  <p><em>↑ Demo GIF — Replace <code>docs/demo.gif</code> with your own screen recording</em></p>
+  <img src="docs/demo.gif" alt="Demo" width="420"/>
+  <p><em>Quick demo: create task → enable toggle → expand editor → add more tasks</em></p>
 </div>
 
 ---
