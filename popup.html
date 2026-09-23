@@ -8,7 +8,6 @@
 </head>
 <body>
   <div id="app">
-    <!-- 头部：显示当前域名，可拖动窗口 -->
     <header class="app-header" id="dragHandle">
       <div class="header-brand">
         <svg class="header-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
@@ -16,27 +15,34 @@
         </svg>
         <span class="header-title">Chrome Timer</span>
       </div>
-      <span id="currentDomain" class="header-domain">--</span>
+      <div class="header-right">
+        <span id="currentDomain" class="header-domain">--</span>
+        <div class="lang-switcher" id="langSwitcher">
+          <button class="lang-btn" id="langBtn" title="Language">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </button>
+          <div class="lang-dropdown" id="langDropdown">
+          </div>
+        </div>
+      </div>
     </header>
-    <!-- 任务列表区域 -->
     <main id="taskList" class="task-list">
-      <!-- 动态渲染 -->
     </main>
-    <!-- 底部操作栏 -->
     <footer class="action-bar">
       <button id="addTaskBtn" class="btn btn-primary">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span>添加任务</span>
+        <span data-i18n="addTask">添加任务</span>
       </button>
       <button id="pickElementBtn" class="btn btn-secondary">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-        <span>选择元素</span>
+        <span data-i18n="pickElement">选择元素</span>
       </button>
-      <button id="toggleSelectorModeBtn" class="btn btn-toggle-mode" title="切换精简/完整选择器模式">
-        <span>精简</span>
+      <button id="toggleSelectorModeBtn" class="btn btn-toggle-mode" data-i18n-title="toggleSelectorTitle">
+        <span data-i18n="compact">精简</span>
       </button>
     </footer>
   </div>
+  <script src="i18n.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

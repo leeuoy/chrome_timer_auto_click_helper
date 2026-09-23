@@ -1,6 +1,9 @@
 (function () {
   'use strict';
 
+  const i18n = (typeof globalThis !== 'undefined' && globalThis.__chromeTimerI18n) || (typeof window !== 'undefined' && window.__chromeTimerI18n) || { t: (k) => k, getLang: () => 'zh-CN', setLang: () => {}, loadLang: async () => 'zh-CN', saveLang: async () => {}, getSupportedLangs: () => [], detectLang: () => 'zh-CN' };
+  const t = i18n.t;
+
   /**
    * 全局常量定义模块
    * 包含存储 key、默认任务模板、默认脚本等常量
@@ -355,7 +358,7 @@
 
     /* 标题 */
     const titleEl = document.createElement('div');
-    titleEl.textContent = '创建定时任务';
+    titleEl.textContent = t('createTask');
     Object.assign(titleEl.style, {
       fontSize: '18px',
       fontWeight: '600',
@@ -368,24 +371,24 @@
     const infoEl = document.createElement('div');
     infoEl.style.cssText = 'background:#f5f7fa;border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:12px;';
     infoEl.innerHTML = `
-    <div style="color:#666;margin-bottom:4px;">选中元素</div>
+    <div style="color:#666;margin-bottom:4px;">${t('selectedElement')}</div>
     <div style="color:#1a1a2e;font-family:Consolas,Monaco,monospace;word-break:break-all;">${escapeHtml(pickData.selector)}</div>
-    <div style="color:#888;margin-top:4px;">标签: ${escapeHtml(pickData.tagName)}${pickData.text ? ' | 文本: ' + escapeHtml(pickData.text.slice(0, 30)) : ''}</div>
+    <div style="color:#888;margin-top:4px;">${t('tagColon')}${escapeHtml(pickData.tagName)}${pickData.text ? t('textColon') + escapeHtml(pickData.text.slice(0, 30)) : ''}</div>
   `;
     panel$1.appendChild(infoEl);
 
     /* 任务名称输入 */
-    const nameGroup = createFormGroup('任务名称');
+    const nameGroup = createFormGroup(t('taskName'));
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
-    nameInput.value = `定时点击 ${pickData.tagName}`;
-    nameInput.placeholder = '输入任务名称';
+    nameInput.value = `${t('timedClick')} ${pickData.tagName}`;
+    nameInput.placeholder = t('taskNamePlaceholder');
     applyInputStyle(nameInput);
     nameGroup.appendChild(nameInput);
     panel$1.appendChild(nameGroup);
 
     /* Cron 表达式输入 */
-    const cronGroup = createFormGroup('Cron 表达式（秒 分 时 日 月 星期）');
+    const cronGroup = createFormGroup(t('cronLabel'));
     const cronInput = document.createElement('input');
     cronInput.type = 'text';
     cronInput.value = DEFAULT_CRON;
@@ -398,7 +401,7 @@
     const toggleRow = document.createElement('div');
     toggleRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;';
     const toggleLabel = document.createElement('span');
-    toggleLabel.textContent = '启用任务';
+    toggleLabel.textContent = t('enableTask');
     toggleLabel.style.color = '#333';
     toggleRow.appendChild(toggleLabel);
 
@@ -441,15 +444,15 @@
     btnRow.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
 
     const cancelBtn = document.createElement('button');
-    cancelBtn.textContent = '取消';
+    cancelBtn.textContent = t('cancel');
     applySecondaryBtnStyle(cancelBtn);
     cancelBtn.addEventListener('click', () => closePanel$1());
 
     const createBtn = document.createElement('button');
-    createBtn.textContent = '创建';
+    createBtn.textContent = t('create');
     applyPrimaryBtnStyle(createBtn);
     createBtn.addEventListener('click', async () => {
-      const name = nameInput.value.trim() || `定时点击 ${pickData.tagName}`;
+      const name = nameInput.value.trim() || `${t('timedClick')} ${pickData.tagName}`;
       const cronExpression = cronInput.value.trim() || DEFAULT_CRON;
       const enabled = toggleInput.checked;
 
@@ -1084,7 +1087,7 @@
       panel.style.borderRadius = '16px';
       isMaximized = false;
       maxBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a6adc8" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>';
-      maxBtn.title = '最大化';
+      maxBtn.title = t('maximize');
     } else {
       savedRect = {
         left: panel.style.left || '',
@@ -1099,7 +1102,7 @@
       panel.style.borderRadius = '0';
       isMaximized = true;
       maxBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a6adc8" stroke-width="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>';
-      maxBtn.title = '还原';
+      maxBtn.title = t('restore');
     }
   }
 
@@ -1125,7 +1128,7 @@
       if (cronInput) cronInput.style.display = '';
       if (titleIcon) titleIcon.style.display = '';
       minBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a6adc8" stroke-width="2"><path d="M4 14h16M4 10h16"/></svg>';
-      minBtn.title = '最小化';
+      minBtn.title = t('minimize');
     } else {
       /* 保存当前尺寸再最小化 */
       if (!isMaximized) {
@@ -1146,7 +1149,7 @@
       if (cronInput) cronInput.style.display = 'none';
       if (titleIcon) titleIcon.style.display = 'none';
       minBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a6adc8" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
-      minBtn.title = '恢复';
+      minBtn.title = t('restore');
     }
   }
 
@@ -1378,7 +1381,7 @@
     const minBtn = document.createElement('button');
     minBtn.id = 'chrome-timer-min-btn';
     minBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a6adc8" stroke-width="2"><path d="M4 14h16M4 10h16"/></svg>';
-    minBtn.title = '最小化';
+    minBtn.title = t('minimize');
     Object.assign(minBtn.style, {
       background: 'none', border: 'none', cursor: 'pointer',
       padding: '4px', borderRadius: '6px',
@@ -1392,7 +1395,7 @@
     /* 最大化按钮 */
     const maxBtn = document.createElement('button');
     maxBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a6adc8" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>';
-    maxBtn.title = '最大化';
+    maxBtn.title = t('maximize');
     Object.assign(maxBtn.style, {
       background: 'none', border: 'none', cursor: 'pointer',
       padding: '4px', borderRadius: '6px',
@@ -1407,7 +1410,7 @@
     /* 关闭按钮 */
     const closeBtn = document.createElement('button');
     closeBtn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#6c7086" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>';
-    closeBtn.title = '关闭（未保存的修改将丢失）';
+    closeBtn.title = t('close');
     Object.assign(closeBtn.style, {
       background: 'none', border: 'none', cursor: 'pointer',
       padding: '4px', borderRadius: '6px',
@@ -1448,7 +1451,7 @@
     /* 选择元素按钮 */
     const pickBtn = createToolBtn(
       '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>',
-      '选择页面元素（获取 CSS 选择器）',
+      t('pickElementTitle'),
       () => startElementPicker(useFullSelector)
     );
 
@@ -1456,14 +1459,14 @@
     const fullSelectorBtn = createToggleBtn(
       '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h6"/></svg>',
       '',
-      '精简选择器 / 完整选择器',
+      t('selectorToggleTitle'),
       (active) => { useFullSelector = active; }
     );
 
     /* 格式化按钮 */
     const formatBtn = createToolBtn(
       '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10H3M21 6H3M21 14H10M21 18H10"/></svg>',
-      '格式化代码 (Ctrl+Shift+F)',
+      t('formatTitle'),
       () => { if (editorInstance) editorInstance.format(); }
     );
 
@@ -1471,7 +1474,7 @@
     const wrapBtn = createToggleBtn(
       '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h15a3 3 0 0 1 0 6h-4M3 18h6"/><path d="M14 14l-2 2 2 2"/></svg>',
       '',
-      '自动换行',
+      t('wrapTitle'),
       (active) => { if (editorInstance) editorInstance.toggleWrap(); }
     );
 
@@ -1481,7 +1484,7 @@
 
     /* 提示文字 */
     const tipLabel = document.createElement('span');
-    tipLabel.textContent = '代码编辑器';
+    tipLabel.textContent = t('codeEditor');
     Object.assign(tipLabel.style, { color: '#585b70', fontSize: '11px', marginLeft: 'auto' });
 
     toolbar.appendChild(pickBtn);
@@ -1503,7 +1506,7 @@
 
     /* 加载中提示 */
     const loadingEl = document.createElement('div');
-    loadingEl.textContent = '正在加载编辑器...';
+    loadingEl.textContent = t('loadingEditor');
     Object.assign(loadingEl.style, {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       height: '100%', color: '#585b70', fontSize: '14px',
@@ -1520,7 +1523,7 @@
     });
 
     const hint = document.createElement('span');
-    hint.textContent = 'Ctrl+S 保存 · Ctrl+左/右 按单词跳转 · 拖拽标题栏移动';
+    hint.textContent = t('editorHint');
     Object.assign(hint.style, { color: '#585b70', fontSize: '12px' });
     footer.appendChild(hint);
 
@@ -1529,7 +1532,7 @@
 
     /* 立即执行按钮：执行当前编辑器内容（不保存） */
     const runBtn = document.createElement('button');
-    runBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="margin-right:4px"><path d="M8 5v14l11-7z"/></svg>立即执行';
+    runBtn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="margin-right:4px"><path d="M8 5v14l11-7z"/></svg>${t('runNowBtn')}`;
     Object.assign(runBtn.style, {
       padding: '8px 16px', border: '1px solid #a6e3a1', borderRadius: '8px',
       backgroundColor: 'transparent', color: '#a6e3a1', fontSize: '13px',
@@ -1546,7 +1549,7 @@
     });
 
     const cancelBtn = document.createElement('button');
-    cancelBtn.textContent = '取消';
+    cancelBtn.textContent = t('cancel');
     Object.assign(cancelBtn.style, {
       padding: '8px 20px', border: '1px solid #45475a', borderRadius: '8px',
       backgroundColor: 'transparent', color: '#a6adc8', fontSize: '13px',
@@ -1557,7 +1560,7 @@
     cancelBtn.addEventListener('click', () => closePanel());
 
     const saveBtn = document.createElement('button');
-    saveBtn.textContent = '保存';
+    saveBtn.textContent = t('save');
     Object.assign(saveBtn.style, {
       padding: '8px 24px', border: 'none', borderRadius: '8px',
       backgroundColor: '#89b4fa', color: '#1e1e2e', fontSize: '13px',
@@ -1617,7 +1620,7 @@
       setTimeout(() => editorInstance.view.focus(), 50);
     } catch (err) {
       console.error('[Chrome Timer] 加载编辑器模块失败:', err);
-      loadingEl.textContent = '编辑器加载失败，请刷新页面后重试';
+      loadingEl.textContent = t('editorLoadFailed');
       loadingEl.style.color = '#eb5757';
     }
 
@@ -12343,10 +12346,11 @@
    * 初始化：从 storage 加载当前域名的任务并启动调度
    */
   async function init() {
+    await i18n.loadLang();
     currentDomain = extractDomain();
     const tasks = await getDomainTasks(currentDomain);
     startScheduler(tasks);
-    console.log(`[Chrome Timer] 已初始化，域名: ${currentDomain}，任务数: ${tasks.length}`);
+    console.log(`[Chrome Timer] initialized, domain: ${currentDomain}, tasks: ${tasks.length}`);
   }
 
   /**
@@ -12435,7 +12439,7 @@
             executeScript(code);
             sendResponse({ success: true });
           } else {
-            sendResponse({ success: false, error: '脚本内容为空' });
+            sendResponse({ success: false, error: 'Script content is empty' });
           }
           return false;
         }

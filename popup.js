@@ -1,6 +1,9 @@
 (function () {
   'use strict';
 
+  const i18n = window.__chromeTimerI18n || { t: (k) => k, getLang: () => 'zh-CN', setLang: () => {}, loadLang: async () => 'zh-CN', saveLang: async () => {}, getSupportedLangs: () => [], detectLang: () => 'zh-CN' };
+  const t = i18n.t;
+
   /**
    * 消息类型常量与工具函数
    * 定义 popup 与 content script 之间的消息协议
@@ -37,7 +40,7 @@
    */
   async function sendToContentScript(message) {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab) throw new Error('未找到活动标签页');
+    if (!tab) throw new Error('No active tab found');
     return chrome.tabs.sendMessage(tab.id, message);
   }
 
@@ -50,7 +53,7 @@
   const STORAGE_KEY = 'timer_tasks';
 
   /** 默认任务名称 */
-  const DEFAULT_TASK_NAME = '新任务';
+  const DEFAULT_TASK_NAME_KEY = 'newTask';
 
   /**
    * 默认 Cron 表达式（6 字段：秒 分 时 日 月 星期）
@@ -162,6 +165,19 @@
    * 底部操作栏按钮（添加任务、选择元素、精简切换）仍可响应
    */
   async function init() {
+    /* 加载保存的语言偏好 */
+    await i18n.loadLang();
+    const detectedLang = i18n.detectLang();
+    const savedLang = i18n.getLang();
+    if (!savedLang || savedLang === 'zh-CN') {
+      const result = await chrome.storage.local.get('timer_lang');
+      if (!result.timer_lang) {
+        i18n.setLang(detectedLang);
+      }
+    }
+    applyI18nToDOM();
+    setupLangSwitcher();
+
     /* 优先注册全局事件监听和拖拽，保证按钮始终可用 */
     setupEventListeners();
     setupDragHandle();
@@ -206,7 +222,7 @@
         tasks = await getDomainTasks(currentDomain);
       }
     } else {
-      domainEl.textContent = '离线模式';
+      domainEl.textContent = t('offlineMode');
       tasks = await getDomainTasks(currentDomain).catch(() => []);
     }
 
@@ -287,7 +303,7 @@
     /* 精简/完整选择器模式切换按钮 */
     toggleSelectorModeBtn.addEventListener('click', () => {
       useFullSelector = !useFullSelector;
-      toggleSelectorModeBtn.querySelector('span').textContent = useFullSelector ? '完整' : '精简';
+      toggleSelectorModeBtn.querySelector('span').textContent = useFullSelector ? t('full') : t('compact');
       toggleSelectorModeBtn.classList.toggle('full-mode', useFullSelector);
     });
 
@@ -327,11 +343,11 @@
       <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
         <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
       </svg>
-      <p class="empty-title">暂无定时任务</p>
-      <p class="empty-desc">点击下方按钮创建你的第一个定时任务</p>
+      <p class="empty-title">${t('noTasks')}</p>
+      <p class="empty-desc">${t('noTasksDesc')}</p>
       <button class="btn btn-primary btn-empty-add" id="emptyAddBtn">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span>添加任务</span>
+        <span>${t('addTask')}</span>
       </button>
     </div>
   `;
@@ -392,33 +408,33 @@
       ${isExpanded ? `
         <div class="task-card-editor">
           <div class="form-group">
-            <label class="form-label">任务名称</label>
-            <input type="text" class="form-input" id="editName-${task.id}" value="${escapeAttr(task.name)}" placeholder="输入任务名称">
+            <label class="form-label">${t('taskName')}</label>
+            <input type="text" class="form-input" id="editName-${task.id}" value="${escapeAttr(task.name)}" placeholder="${t('taskNamePlaceholder')}">
           </div>
           <div class="form-group">
-            <label class="form-label">Cron 表达式（秒 分 时 日 月 星期）</label>
+            <label class="form-label">${t('cronLabel')}</label>
             <input type="text" class="form-input form-input-mono" id="editCron-${task.id}" value="${escapeAttr(task.cronExpression)}" placeholder="*/3 * * * * *">
           </div>
           <div class="form-group">
-            <label class="form-label">脚本</label>
+            <label class="form-label">${t('scriptLabel')}</label>
             <div class="editor-wrapper">
               <div class="editor-toolbar" id="toolbar-${task.id}">
                 <div class="toolbar-left">
-                  <button class="toolbar-btn" data-action="format" title="格式化代码 (Ctrl+Shift+F)">
+                  <button class="toolbar-btn" data-action="format" title="${t('formatTitle')}">
                     <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-                    <span>格式化</span>
+                    <span>${t('format')}</span>
                   </button>
-                  <button class="toolbar-btn" data-action="toggleWrap" title="切换自动换行">
+                  <button class="toolbar-btn" data-action="toggleWrap" title="${t('wrapTitle')}">
                     <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h15a3 3 0 1 1 0 6h-4"/><path d="M3 18h12"/><polyline points="17 12 19 14 21 12"/></svg>
-                    <span>换行</span>
+                    <span>${t('wrap')}</span>
                   </button>
-                  <button class="toolbar-btn" data-action="search" title="搜索替换 (Ctrl+F)">
+                  <button class="toolbar-btn" data-action="search" title="${t('searchTitle')}">
                     <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <span>搜索</span>
+                    <span>${t('search')}</span>
                   </button>
                 </div>
                 <div class="toolbar-right">
-                  <span class="toolbar-hint" title="Ctrl+/ 注释 | Ctrl+D 多选 | Ctrl+Z 撤销">快捷键提示</span>
+                  <span class="toolbar-hint" title="${t('shortcutHintTitle')}">${t('shortcutHint')}</span>
                 </div>
               </div>
               <div class="editor-container" id="editor-${task.id}"></div>
@@ -427,25 +443,25 @@
           <div class="editor-actions">
             <button class="btn btn-sm btn-secondary btn-pick">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-              <span>选择元素</span>
+              <span>${t('pickElement')}</span>
             </button>
             <div class="editor-actions-right">
-              <button class="btn btn-sm btn-ghost btn-cancel">取消</button>
-              <button class="btn btn-sm btn-primary btn-save">保存</button>
+              <button class="btn btn-sm btn-ghost btn-cancel">${t('cancel')}</button>
+              <button class="btn btn-sm btn-primary btn-save">${t('save')}</button>
             </div>
           </div>
         </div>
       ` : ''}
       <div class="task-card-actions">
-        <button class="btn btn-sm btn-ghost btn-run" title="立即运行">
+        <button class="btn btn-sm btn-ghost btn-run" title="${t('runNow')}">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         </button>
-        <button class="btn btn-sm btn-ghost btn-edit btn-edit-icon" title="编辑">
+        <button class="btn btn-sm btn-ghost btn-edit btn-edit-icon" title="${t('edit')}">
           <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
         </button>
-        <button class="btn btn-sm btn-ghost btn-delete" title="删除">
+        <button class="btn btn-sm btn-ghost btn-delete" title="${t('delete')}">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          <span>删除</span>
+          <span>${t('delete')}</span>
         </button>
       </div>
     </div>
@@ -478,7 +494,7 @@
    * @param {string} taskId - 任务 ID
    */
   async function handleRunTaskNow(taskId) {
-    const task = tasks.find(t => t.id === taskId);
+    const task = tasks.find(task => task.id === taskId);
     if (!task) return;
 
     /* 编辑器已移至页面内大窗口，直接使用任务保存的脚本 */
@@ -508,7 +524,7 @@
     try {
     const newTask = {
       id: generateId(),
-      name: DEFAULT_TASK_NAME,
+      name: t(DEFAULT_TASK_NAME_KEY),
       enabled: true,
       cronExpression: DEFAULT_CRON,
       script: DEFAULT_SCRIPT,
@@ -561,10 +577,10 @@
   async function handleSaveTask(taskId) {
     const nameInput = document.getElementById(`editName-${taskId}`);
     const cronInput = document.getElementById(`editCron-${taskId}`);
-    const task = tasks.find(t => t.id === taskId);
+    const task = tasks.find(task => task.id === taskId);
     if (!task) return;
 
-    task.name = nameInput?.value.trim() || DEFAULT_TASK_NAME;
+    task.name = nameInput?.value.trim() || t(DEFAULT_TASK_NAME_KEY);
     task.cronExpression = cronInput?.value.trim() || DEFAULT_CRON;
     task.script = getCurrentScript();
     task.updatedAt = Date.now();
@@ -596,7 +612,7 @@
    * @param {string} taskId - 任务 ID
    */
   async function handleToggleTask(taskId) {
-    const task = tasks.find(t => t.id === taskId);
+    const task = tasks.find(task => task.id === taskId);
     if (!task) return;
     task.enabled = !task.enabled;
     task.updatedAt = Date.now();
@@ -617,11 +633,11 @@
    */
   async function handleDeleteTask(taskId) {
     /* 显示确认弹窗 */
-    const confirmed = await showConfirmDialog('确定要删除此任务吗？');
+    const confirmed = await showConfirmDialog(t('confirmDelete'));
     if (!confirmed) return;
 
     await deleteDomainTask(currentDomain, taskId);
-    tasks = tasks.filter(t => t.id !== taskId);
+    tasks = tasks.filter(task => task.id !== taskId);
 
     /* 如果正在编辑被删除的任务，关闭编辑面板 */
     if (expandedTaskId === taskId) {
@@ -740,8 +756,8 @@
       <div class="confirm-dialog">
         <p class="confirm-message">${message}</p>
         <div class="confirm-actions">
-          <button class="btn btn-sm btn-ghost" id="confirmCancel">取消</button>
-          <button class="btn btn-sm btn-danger" id="confirmOk">删除</button>
+          <button class="btn btn-sm btn-ghost" id="confirmCancel">${t('cancel')}</button>
+          <button class="btn btn-sm btn-danger" id="confirmOk">${t('delete')}</button>
         </div>
       </div>
     `;
@@ -783,29 +799,29 @@
       overlay.className = 'confirm-overlay';
       overlay.innerHTML = `
       <div class="confirm-dialog">
-        <p class="confirm-message" style="margin-bottom: 12px; font-weight: 600;">创建定时任务</p>
+        <p class="confirm-message" style="margin-bottom: 12px; font-weight: 600;">${t('createTask')}</p>
         <div style="margin-bottom: 10px; font-size: 12px; color: var(--text-secondary);">
-          <div><strong>标签名：</strong>${escapeHtml(data.tagName)}</div>
-          <div><strong>文本内容：</strong>${escapeHtml(data.text || '(无文本)')}</div>
+          <div><strong>${t('tagName')}</strong>${escapeHtml(data.tagName)}</div>
+          <div><strong>${t('textContent')}</strong>${escapeHtml(data.text || t('noText'))}</div>
         </div>
         <div class="form-group">
-          <label class="form-label">任务名称</label>
-          <input type="text" class="form-input" id="createTaskName" value="定时点击 ${escapeAttr(data.tagName)}" placeholder="输入任务名称">
+          <label class="form-label">${t('taskName')}</label>
+          <input type="text" class="form-input" id="createTaskName" value="${t('timedClick')} ${escapeAttr(data.tagName)}" placeholder="${t('taskNamePlaceholder')}">
         </div>
         <div class="form-group">
-          <label class="form-label">Cron 表达式（秒 分 时 日 月 星期）</label>
+          <label class="form-label">${t('cronLabel')}</label>
           <input type="text" class="form-input form-input-mono" id="createTaskCron" value="${escapeAttr(DEFAULT_CRON)}" placeholder="*/3 * * * * *">
         </div>
         <div class="form-group">
-          <label class="form-label">启用任务</label>
+          <label class="form-label">${t('enableTask')}</label>
           <label class="toggle-switch checked">
             <input type="checkbox" id="createTaskEnabled" checked tabindex="-1">
             <span class="toggle-slider"></span>
           </label>
         </div>
         <div class="confirm-actions" style="margin-top: 12px;">
-          <button class="btn btn-sm btn-ghost" id="createTaskCancel">取消</button>
-          <button class="btn btn-sm btn-primary" id="createTaskOk">创建</button>
+          <button class="btn btn-sm btn-ghost" id="createTaskCancel">${t('cancel')}</button>
+          <button class="btn btn-sm btn-primary" id="createTaskOk">${t('create')}</button>
         </div>
       </div>
     `;
@@ -830,7 +846,7 @@
       overlay.querySelector('#createTaskOk').addEventListener('click', () => {
         overlay.remove();
         resolve({
-          name: overlay.querySelector('#createTaskName').value.trim() || `定时点击 ${data.tagName}`,
+          name: overlay.querySelector('#createTaskName').value.trim() || `${t('timedClick')} ${data.tagName}`,
           cronExpression: overlay.querySelector('#createTaskCron').value.trim() || DEFAULT_CRON,
           enabled: toggleInput.checked,
         });
@@ -847,6 +863,57 @@
       /* 聚焦到任务名称输入框，方便用户直接编辑 */
       overlay.querySelector('#createTaskName').focus();
       overlay.querySelector('#createTaskName').select();
+    });
+  }
+
+  /* ==================== i18n 辅助函数 ==================== */
+
+  function applyI18nToDOM() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      el.textContent = t(key);
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const key = el.getAttribute('data-i18n-title');
+      el.title = t(key);
+    });
+    const toggleSpan = toggleSelectorModeBtn?.querySelector('span');
+    if (toggleSpan) toggleSpan.textContent = useFullSelector ? t('full') : t('compact');
+    if (toggleSelectorModeBtn) toggleSelectorModeBtn.title = t('toggleSelectorTitle');
+  }
+
+  function setupLangSwitcher() {
+    const langBtn = document.getElementById('langBtn');
+    const langDropdown = document.getElementById('langDropdown');
+    if (!langBtn || !langDropdown) return;
+
+    const langs = i18n.getSupportedLangs();
+    const currentLang = i18n.getLang();
+
+    langDropdown.innerHTML = '';
+    langs.forEach(lang => {
+      const option = document.createElement('div');
+      option.className = 'lang-option' + (lang.code === currentLang ? ' active' : '');
+      option.innerHTML = `<span class="lang-flag">${lang.flag}</span><span class="lang-label">${lang.label}</span>`;
+      option.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await i18n.saveLang(lang.code);
+        langDropdown.classList.remove('open');
+        applyI18nToDOM();
+        renderTaskList();
+        langDropdown.querySelectorAll('.lang-option').forEach(o => o.classList.remove('active'));
+        option.classList.add('active');
+      });
+      langDropdown.appendChild(option);
+    });
+
+    langBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      langDropdown.classList.toggle('open');
+    });
+
+    document.addEventListener('click', () => {
+      langDropdown.classList.remove('open');
     });
   }
 
