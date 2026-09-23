@@ -1,91 +1,119 @@
-# Chrome Timer — 网页定时任务管理器
+# Chrome Timer — Web Page Scheduled Task Manager
 
-一个强大的 Chrome 扩展，可以在网页上创建定时任务，自动点击元素或执行自定义 JavaScript 脚本。
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-green?logo=googlechrome&logoColor=white)](https://github.com/leeuoy/chrome_timer_auto_click_helper)
+[![Manifest V3](https://img.shields.io/badge/Manifest-V3-blue)](https://developer.chrome.com/docs/extensions/mv3/intro/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![中文文档](https://img.shields.io/badge/README-中文-orange.svg)](README_CN.md)
 
-## 功能特性
+A powerful Chrome extension that lets you create scheduled tasks on web pages to automatically click elements or execute custom JavaScript scripts.
 
-- **元素选择器** — 通过可视化拾取模式，一键选中页面元素并生成 CSS 选择器
-- **Cron 调度** — 支持 6 字段 Cron 表达式（秒 分 时 日 月 星期），灵活配置执行频率
-- **JS 脚本编辑** — 内置代码编辑器，可编写任意 JavaScript 脚本在页面上下文中执行
-- **按域名管理** — 任务按网站域名分组，互不干扰
-- **动态时钟图标** — 扩展图标实时显示当前时间
-- **精简/完整选择器** — 可切换选择器生成模式，适配不同场景
+**[中文文档](README_CN.md)**
 
-## 安装
+---
 
-1. 克隆或下载本仓库到本地
-2. 打开 Chrome，访问 `chrome://extensions/`
-3. 开启右上角 **开发者模式**
-4. 点击 **加载已解压的扩展程序**，选择本项目根目录
-5. 扩展图标出现在工具栏，即可使用
+<div align="center">
+  <img src="docs/demo.gif" alt="Demo" width="600"/>
+  <p><em>↑ Demo GIF — Replace <code>docs/demo.gif</code> with your own screen recording</em></p>
+</div>
 
-## 使用方法
+---
 
-### 创建定时任务
+## Features
 
-1. 点击扩展图标打开弹出面板
-2. 面板顶部显示当前页面域名
-3. 点击 **添加任务** 创建新任务
-4. 配置 Cron 表达式（默认每 3 秒执行一次）
-5. 编写或修改执行脚本
+- **Element Picker** — Visual picking mode to select page elements and generate CSS selectors with one click
+- **Cron Scheduling** — 6-field Cron expressions (sec min hour day month weekday) for flexible execution frequency
+- **JS Script Editor** — Built-in code editor to write arbitrary JavaScript that runs in the page context
+- **Per-Domain Management** — Tasks are grouped by website domain, isolated from each other
+- **Dynamic Clock Icon** — Extension icon displays the current time in real time
+- **Compact / Full Selector** — Toggle between compact and full selector generation modes
 
-### 选择页面元素
+## Use Cases
 
-1. 点击 **选择元素** 按钮
-2. 鼠标移到目标元素上，元素高亮显示
-3. 点击元素，选择器自动填入脚本
-4. 按 `Esc` 可取消选择
+- Auto-click buttons on scheduled intervals (e.g., auto sign-in, auto refresh)
+- Run custom JS snippets on a Cron schedule (e.g., data scraping, form filling)
+- Replace simple Tampermonkey scripts with a no-code/low-code UI
+- Automate repetitive web tasks without writing a full extension
 
-### 执行脚本
+## Installation
 
-默认脚本模板：
+1. Clone or download this repository
+2. Open Chrome and navigate to `chrome://extensions/`
+3. Enable **Developer mode** in the top-right corner
+4. Click **Load unpacked** and select the project root directory
+5. The extension icon appears in the toolbar — you're ready to go
+
+## Usage
+
+### Creating a Scheduled Task
+
+1. Click the extension icon to open the popup panel
+2. The current page domain is shown at the top
+3. Click **Add Task** to create a new task
+4. Configure the Cron expression (default: every 3 seconds)
+5. Write or modify the execution script
+
+### Selecting a Page Element
+
+1. Click the **Pick Element** button
+2. Hover over the target element — it will be highlighted
+3. Click the element to auto-fill the selector into the script
+4. Press `Esc` to cancel selection
+
+### Execution Script
+
+Default script template:
 
 ```javascript
 const el = document.querySelector("{{SELECTOR}}");
 if (el) el.click();
 ```
 
-`{{SELECTOR}}` 会在元素选择后自动替换为实际的 CSS 选择器。你也可以编写任意自定义脚本。
+`{{SELECTOR}}` is automatically replaced with the actual CSS selector after picking an element. You can also write any custom script.
 
-## 项目结构
+## Project Structure
 
 ```
 chrome_timer_click_helper/
-├── manifest.json        # 扩展清单文件（Manifest V3）
-├── background.js        # Background Service Worker（时钟图标等）
-├── content.js           # Content Script（元素选择、任务执行）
-├── editor-module.js     # 内置代码编辑器模块
-├── popup.html           # 弹出面板页面
-├── popup.css            # 弹出面板样式
-├── popup.js             # 弹出面板逻辑
-├── icons/               # 扩展图标
+├── manifest.json        # Extension manifest (Manifest V3)
+├── background.js        # Background Service Worker (clock icon, etc.)
+├── content.js           # Content Script (element picking, task execution)
+├── editor-module.js     # Built-in code editor module
+├── popup.html           # Popup panel page
+├── popup.css            # Popup panel styles
+├── popup.js             # Popup panel logic
+├── icons/               # Extension icons
 │   ├── icon16.png
 │   ├── icon48.png
 │   └── icon128.png
-└── docs/                # 文档与图片资源
-    ├── alipay.jpg       # 支付宝收款码
-    └── wechat.jpg       # 微信收款码
+└── docs/                # Docs and image assets
+    ├── demo.gif         # Demo screen recording
+    ├── alipay.jpg       # Alipay QR code
+    └── wechat.jpg       # WeChat Pay QR code
 ```
 
-## 技术栈
+## Tech Stack
 
 - Chrome Extension Manifest V3
-- Vanilla JavaScript（无框架依赖）
-- chrome.storage.local 持久化存储
-- CSS 选择器 + DOM 操作
+- Vanilla JavaScript (no framework dependencies)
+- chrome.storage.local for persistent storage
+- CSS selectors + DOM manipulation
 
-## 赞助支持
+## Contributing
 
-如果这个项目对你有帮助，欢迎请我喝杯咖啡 ☕
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## Sponsor / Support
+
+If this project helps you, consider buying me a coffee ☕
 
 <div align="center">
 
-| 支付宝 | 微信 |
+| Alipay | WeChat |
 |:---:|:---:|
 | ![](docs/alipay.jpg) | ![](docs/wechat.png) |
 
 </div>
 
-## 许可证
+## License
 
-MIT License
+[MIT](LICENSE)
