@@ -13,7 +13,7 @@ A powerful Chrome extension that lets you create scheduled tasks on web pages to
 
 <div align="center">
   <img src="docs/demo.gif" alt="Demo" width="420"/>
-  <p><em>Quick demo: create task → enable toggle → expand editor → add more tasks</em></p>
+  <p><em>Quick demo: create task → toggle language (🌐) → switch between 5 languages → UI updates instantly</em></p>
 </div>
 
 ---
@@ -26,6 +26,7 @@ A powerful Chrome extension that lets you create scheduled tasks on web pages to
 - **Per-Domain Management** — Tasks are grouped by website domain, isolated from each other
 - **Dynamic Clock Icon** — Extension icon displays the current time in real time
 - **Compact / Full Selector** — Toggle between compact and full selector generation modes
+- **I18n / Multi-Language** — Supports 5 languages (简体中文, English, 日本語, 한국어, 繁體中文) with a dropdown switcher; language preference is persisted across sessions
 
 ## Use Cases
 
@@ -59,6 +60,14 @@ A powerful Chrome extension that lets you create scheduled tasks on web pages to
 3. Click the element to auto-fill the selector into the script
 4. Press `Esc` to cancel selection
 
+### Switching Language
+
+1. Click the 🌐 globe icon in the popup header
+2. Select your preferred language from the dropdown
+3. All UI text updates instantly; your choice is saved automatically
+4. Next time you open the popup, it will use your saved language
+5. If no language is saved, the extension auto-detects your browser language
+
 ### Execution Script
 
 Default script template:
@@ -78,6 +87,7 @@ chrome_timer_click_helper/
 ├── background.js        # Background Service Worker (clock icon, etc.)
 ├── content.js           # Content Script (element picking, task execution)
 ├── editor-module.js     # Built-in code editor module
+├── i18n.js              # Internationalization module (5 languages)
 ├── popup.html           # Popup panel page
 ├── popup.css            # Popup panel styles
 ├── popup.js             # Popup panel logic
@@ -97,6 +107,7 @@ chrome_timer_click_helper/
 - Vanilla JavaScript (no framework dependencies)
 - chrome.storage.local for persistent storage
 - CSS selectors + DOM manipulation
+- I18n with auto-detection and persistent language preference
 
 ## Contributing
 
