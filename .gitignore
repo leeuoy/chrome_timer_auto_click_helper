@@ -1,0 +1,27 @@
+.idea
+*.log
+*.iml
+*.MF
+target/**
+cpc-center-work-parent/target/**
+/.xcodemap/config/xcodemap-class-filter.yaml
+.DS_Store
+.vscode
+.*/**
+!.sonarlint/
+!.sonarlint/**
+*.drawio
+.trae/**
+**/.trae/**
+openspec/**
+.gitnexus
+AiCoding/
+logs/
+DEFAULT_GROUP/
+# 本地 Sonar 令牌/覆盖配置，勿提交
+sonar-local.properties
+.sonar/
+sonar-project.properties
+.scannerwork/
+node_modules/**
+.idea/
